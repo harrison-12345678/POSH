@@ -1,4 +1,9 @@
-const User = require('../models/User');
+const User = require('../Models/User');
+const bcrypt = require('bcryptjs');
+
+// ============================
+// Admin-only controllers
+// ============================
 
 // Get all users (admin only)
 exports.getAllUsers = async (req, res) => {
@@ -23,7 +28,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// Update user
+// Update user (admin can update any user)
 exports.updateUser = async (req, res) => {
   try {
     const { firstName, lastName, phoneNumber } = req.body;
@@ -51,5 +56,52 @@ exports.deleteUser = async (req, res) => {
   } catch (err) {
     console.error('Delete User Error:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ============================
+// Authenticated student/profile controllers
+// ============================
+
+// GET: Student profile (authenticated user)
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password'); // req.user comes from your auth middleware
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(user);
+  } catch (err) {
+    console.error('Get Profile Error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// PUT: Update profile (authenticated user)
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const { firstName, lastName, phoneNumber, password } = req.body;
+
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+
+    // Update password if provided
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    // Update profile picture if file uploaded
+    if (req.file) {
+      user.profilePicture = `/uploads/${req.file.filename}`;
+    }
+
+    await user.save();
+    res.status(200).json({ message: 'Profile updated successfully', user });
+  } catch (err) {
+    console.error('Update Profile Error:', err);
+    res.status(500).json({ message: 'Update failed', error: err.message });
   }
 };
