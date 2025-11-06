@@ -1,0 +1,101 @@
+/* Global box-sizing reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure html and body take full height and have no margin */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Navbar container - FIXED */
+.navbar {
+  width: 100vw;                /* Use viewport width instead of 100% */
+  background-color: white;
+  color: #1e3a8a;
+  padding: 12px 0;             /* Remove horizontal padding from navbar */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: fixed;             /* Change from sticky to fixed */
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  height: 60px;
+}
+
+/* Inner container */
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;             /* Add padding here instead */
+}
+
+/* Add margin to body to prevent content from hiding behind fixed navbar */
+body {
+  padding-top: 60px;           /* Adjust based on your navbar height */
+}
+
+/* Rest of your existing styles remain the same */
+.navbar-brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1e3a8a;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.navbar-links a {
+  color: #1e3a8a;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navbar-links a:hover {
+  color: #2563eb;
+}
+
+.logout-btn {
+  background-color: #1e3a8a;
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Adjust body padding for mobile if needed */
+  body {
+    padding-top: 80px; /* May need more space on mobile */
+  }
+}
