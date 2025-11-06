@@ -1,0 +1,83 @@
+/* StudentRooms.css */
+.page-content {
+  padding-top: 60px; /* same height as your navbar */
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Container for all room cards */
+.room-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 10px 0;
+  justify-content: center;
+}
+
+/* Individual room card */
+.room-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 280px;       /* Reduced card width */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px;
+  gap: 8px;
+  background-color: #fff;
+}
+
+/* Main image styling */
+.room-main-image {
+  width: 100%;        /* Full width of the card */
+  height: 200px;      /* Keep it big relative to smaller card */
+  object-fit: cover;  /* Cover the area without distortion */
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+/* Room title */
+.room-card h2 {
+  margin: 0;
+  font-size: 1.2rem;  /* Slightly smaller title */
+}
+
+/* Room info text */
+.room-card p {
+  margin: 0;
+  font-size: 0.9rem;  /* Slightly smaller text */
+  line-height: 1.2rem;
+}
+
+/* Book button styles */
+.book-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.book-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.book-btn.booked {
+  background: #ffc107;
+  color: #000;
+}
+
+.booking-status {
+  margin-top: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.booking-status.pending {
+  color: #ff9800;
+}
