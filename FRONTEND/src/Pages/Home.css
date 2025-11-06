@@ -1,0 +1,378 @@
+/* =========================
+   General Styles
+========================= */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.home-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   Booking Status Card
+========================= */
+.booking-status-card {
+  background: linear-gradient(135deg, #0047ab, #0066ff);
+  color: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.booking-status-card h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  text-align: left;
+}
+
+.has-booking .status-success {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+.booking-details {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.booking-details p {
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.no-booking .status-info {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+.no-booking p {
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.view-booking-btn,
+.book-now-btn {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.view-booking-btn:hover,
+.book-now-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: white;
+  text-decoration: none;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.status-approved {
+  background: #d1edff;
+  color: #004085;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+/* =========================
+   Slideshow Styles
+========================= */
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 300px;
+  max-height: 500px;
+  overflow: hidden;
+  background-color: #0047ab;
+}
+
+.slide-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.slide-image.active {
+  opacity: 1;
+}
+
+/* Slide overlay full width and left-aligned */
+.slide-overlay {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  max-width: none;
+  transform: translateY(-50%);
+  padding: 0 20px;
+  color: #ffffff;
+  text-align: left;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+.slide-title {
+  font-size: 2.5rem;
+  margin: 0 0 15px 0;
+}
+
+.slide-text {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* =========================
+   Page Content
+========================= */
+.home-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+/* Section Titles */
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 25px;
+  color: #0047ab;
+  text-align: left;
+}
+
+/* =========================
+   Cards (Quick Actions)
+========================= */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-bottom: 50px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.card {
+  flex: 1 1 calc(33.333% - 25px);
+  padding: 25px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Card Colors */
+.blue-card {
+  background: linear-gradient(135deg, #0047ab, #0066ff);
+}
+
+.white-card {
+  background-color: #ffffff;
+  color: #0047ab;
+  border: 2px solid #0047ab;
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* =========================
+   Announcements
+========================= */
+.announcements {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 30px 0;
+  padding: 25px;
+  background-color: #e6f0ff;
+  border-radius: 12px;
+  border-left: 5px solid #0047ab;
+  box-sizing: border-box;
+}
+
+.announcements h2 {
+  margin-top: 0;
+  color: #0047ab;
+  border-bottom: 2px solid #0047ab;
+  padding-bottom: 10px;
+}
+
+.announcements ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.announcements li {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* =========================
+   Footer
+========================= */
+.home-footer {
+  background-color: #0047ab;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-top: auto;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 1024px) {
+  .card {
+    flex: 1 1 calc(50% - 25px); /* 2 cards per row */
+  }
+  
+  .booking-status-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .slideshow-container {
+    height: 40vh;
+    min-height: 250px;
+  }
+  
+  .card-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .card {
+    width: 100%;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  
+  .slide-title {
+    font-size: 2rem;
+  }
+  
+  .slide-text {
+    font-size: 1rem;
+  }
+  
+  .home-content {
+    padding: 30px 15px;
+  }
+  
+  .booking-status-card {
+    margin-bottom: 30px;
+    padding: 20px;
+  }
+  
+  .booking-status-card h2 {
+    font-size: 1.6rem;
+  }
+  
+  .booking-details {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slideshow-container {
+    height: 35vh;
+    min-height: 200px;
+  }
+  
+  .slide-title {
+    font-size: 1.7rem;
+  }
+  
+  .section-title {
+    font-size: 1.7rem;
+  }
+  
+  .card {
+    padding: 20px;
+    min-height: 120px;
+  }
+  
+  .booking-status-card {
+    padding: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .booking-status-card h2 {
+    font-size: 1.4rem;
+  }
+  
+  .has-booking .status-success,
+  .no-booking .status-info {
+    font-size: 1.1rem;
+  }
+  
+  .view-booking-btn,
+  .book-now-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
