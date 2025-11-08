@@ -1,0 +1,234 @@
+/* Reset default margins and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* FIX FOR DOUBLE SCROLLBARS - UPDATED */
+html, body, #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* ✅ REMOVE browser scrollbar */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Top Navbar */
+.admin-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #1e3a8a;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.navbar-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.logout-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Layout wrapper for sidebar + main */
+.admin-body {
+    display: flex;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    width: 100%;
+    overflow: hidden; /* ✅ PREVENT container scrolling */
+}
+
+/* Sidebar - ENSURED EXTREME LEFT */
+.admin-sidebar {
+    width: 250px;
+    background-color: #1e40af;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    position: fixed; 
+    left: 0; 
+    top: 60px; 
+    height: calc(100vh - 60px);
+}
+
+/* Sidebar nav links */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+}
+
+.sidebar-link {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    display: block;
+    width: 100%;
+}
+
+.sidebar-link:hover {
+    background-color: #2563eb;
+}
+
+/* Main content - ADJUSTED FOR FIXED SIDEBAR */
+.admin-main {
+    flex: 1;
+    background-color: #f3f4f6;
+    padding: 20px;
+    overflow-y: auto; /* ✅ ONLY this should scroll */
+    margin-left: 250px; 
+    width: calc(100% - 250px); 
+    height: 100%; /* ✅ ENSURE it takes full height */
+}
+
+/* ✅ IMPROVED SCROLLBAR STYLING */
+.admin-main::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-main::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.admin-main::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.admin-main::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Page heading inside main content */
+.dashboard-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Dashboard summary cards container */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* Card styling */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Color variants */
+.blue { background-color: #3b82f6; color: white; }
+.navy { background-color: #1e40af; color: white; }
+.teal { background-color: #14b8a6; color: white; }
+.green { background-color: #22c55e; color: white; }
+.red { background-color: #ef4444; color: white; }
+.gray { background-color: #6b7280; color: white; }
+
+/* Recent bookings table */
+.recent-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recent-table th, .recent-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.recent-table th {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.recent-table tr:last-child td {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: 200px;
+    }
+    
+    .admin-main {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+    }
+    
+    .dashboard-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 180px;
+    }
+    
+    .admin-main {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        padding: 15px;
+    }
+    
+    .dashboard-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .card {
+        padding: 12px 15px;
+    }
+}
