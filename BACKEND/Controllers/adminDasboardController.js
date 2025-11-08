@@ -1,7 +1,8 @@
-const Booking = require("../Models/Booking");
-const Room = require("../Models/Room");
-const User = require("../Models/User");
+const { LocalBooking, AtlasBooking } = require("../Models/Booking");
+const { LocalRoom, AtlasRoom } = require("../Models/Room");
+const { LocalUser, AtlasUser } = require("../models/User");
 
+// Admin dashboard data
 exports.getAdminDashboardData = async (req, res) => {
   try {
     const hostelId = req.user.hostelId;
@@ -10,20 +11,18 @@ exports.getAdminDashboardData = async (req, res) => {
       return res.status(400).json({ message: "Hostel ID missing from admin account" });
     }
 
-    // Query only data from this admin’s hostel
-    const totalRooms = await Room.countDocuments({ hostelId });
-    const occupiedRooms = await Room.countDocuments({ hostelId, isAvailable: false });
-    const pendingBookings = await Booking.countDocuments({ hostelId, status: "pending" });
-    const approvedBookings = await Booking.countDocuments({ hostelId, status: "approved" });
-    const rejectedBookings = await Booking.countDocuments({ hostelId, status: "rejected" });
+    // --- Use Local DB for counting, you could also aggregate from Atlas if needed ---
+    const totalRooms = await LocalRoom.countDocuments({ hostelId });
+    const occupiedRooms = await LocalRoom.countDocuments({ hostelId, isAvailable: false });
+    const pendingBookings = await LocalBooking.countDocuments({ hostelId, status: "pending" });
+    const approvedBookings = await LocalBooking.countDocuments({ hostelId, status: "approved" });
+    const rejectedBookings = await LocalBooking.countDocuments({ hostelId, status: "rejected" });
 
-    // Get total unique students who booked this hostel
-    const studentCount = await Booking.distinct("studentId", { hostelId });
+    const studentCount = await LocalBooking.distinct("studentId", { hostelId });
     const totalStudents = studentCount.length;
 
-    // Get 5 latest bookings for preview
-    const recentBookings = await Booking.find({ hostelId })
-      .populate("studentId", "name email")
+    const recentBookings = await LocalBooking.find({ hostelId })
+      .populate("studentId", "firstName lastName email") // changed from 'name' to firstName + lastName
       .sort({ createdAt: -1 })
       .limit(5);
 
