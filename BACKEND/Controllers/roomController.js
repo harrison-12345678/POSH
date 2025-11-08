@@ -1,20 +1,20 @@
-const Room = require('../Models/Room');
+// controllers/roomController.js
 
-// Create new room
+// ✅ Correct imports for dual DB setup
+const { LocalRoom, AtlasRoom, saveRoomToBoth } = require('../Models/Room');
+const Room = LocalRoom; // Use LocalRoom for your existing controller logic (other methods)
+
+// ----------------------------
+// Create new room (saves to both Local + Atlas)
+// ----------------------------
 exports.createRoom = async (req, res) => {
   try {
-      console.log('--- Incoming req.user ---');
-    console.log(req.user);  // <-- This line shows what the backend sees
-    console.log('--- Incoming req.body ---');
-    console.log(req.body); 
     const { roomNumber, roomType, capacity, price, description, images, amenities } = req.body;
-    
-    // Get hostelId from logged-in admin
-    const hostelId = req.user.hostelId; // Changed from hostelName
-      
+    const hostelId = req.user.hostelId;
 
-    const room = new Room({
-      hostelId, // Updated
+    // Save to both databases
+    const { local, atlas } = await saveRoomToBoth({
+      hostelId,
       roomNumber,
       roomType,
       capacity,
@@ -25,12 +25,12 @@ exports.createRoom = async (req, res) => {
       createdBy: req.user.id
     });
 
-    await room.save();
-    res.status(201).json({ 
-      message: 'Room created successfully', 
-      room 
+    res.status(201).json({
+      message: 'Room created successfully',
+      local,
+      atlas
     });
-    
+
   } catch (err) {
     console.error('Create Room Error:', err);
     if (err.code === 11000) {
@@ -40,12 +40,15 @@ exports.createRoom = async (req, res) => {
   }
 };
 
+// ----------------------------
+// The rest of your Room controller methods remain unchanged
+// ----------------------------
+
 // Get all rooms for admin's hostel
 exports.getHostelRooms = async (req, res) => {
   try {
-    const hostelId = req.user.hostelId; // Changed from hostelName
+    const hostelId = req.user.hostelId;
     const rooms = await Room.find({ hostelId });
-    
     res.status(200).json(rooms);
   } catch (err) {
     console.error('Get Rooms Error:', err);
@@ -58,12 +61,9 @@ exports.getRoomById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     if (!room) return res.status(404).json({ message: 'Room not found' });
-    
-    // Verify room belongs to admin's hostel
-    if (room.hostelId.toString() !== req.user.hostelId) { // Changed check
+    if (room.hostelId.toString() !== req.user.hostelId) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    
     res.status(200).json(room);
   } catch (err) {
     console.error('Get Room Error:', err);
@@ -75,21 +75,18 @@ exports.getRoomById = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   try {
     const { roomNumber, roomType, capacity, price, description, images, amenities, isAvailable } = req.body;
-    
     const room = await Room.findById(req.params.id);
     if (!room) return res.status(404).json({ message: 'Room not found' });
-    
-    // Verify room belongs to admin's hostel
-    if (room.hostelId.toString() !== req.user.hostelId) { // Changed check
+    if (room.hostelId.toString() !== req.user.hostelId) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    
+
     const updatedRoom = await Room.findByIdAndUpdate(
       req.params.id,
       { roomNumber, roomType, capacity, price, description, images, amenities, isAvailable },
       { new: true, runValidators: true }
     );
-    
+
     res.status(200).json({ message: 'Room updated successfully', room: updatedRoom });
   } catch (err) {
     console.error('Update Room Error:', err);
@@ -102,12 +99,9 @@ exports.deleteRoom = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     if (!room) return res.status(404).json({ message: 'Room not found' });
-    
-    // Verify room belongs to admin's hostel
-    if (room.hostelId.toString() !== req.user.hostelId) { // Changed check
+    if (room.hostelId.toString() !== req.user.hostelId) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    
     await Room.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Room deleted successfully' });
   } catch (err) {
@@ -119,9 +113,7 @@ exports.deleteRoom = async (req, res) => {
 // Get all rooms (students)
 exports.getAllRooms = async (req, res) => {
   try {
-    const rooms = await Room.find()
-      .populate('hostelId', 'name'); // populate only hostel name
-
+    const rooms = await Room.find().populate('hostelId', 'name');
     res.status(200).json(rooms);
   } catch (err) {
     console.error('Get All Rooms Error:', err);
@@ -132,11 +124,8 @@ exports.getAllRooms = async (req, res) => {
 // Get single room details (students)
 exports.getRoomDetails = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.id)
-      .populate('hostelId', 'name'); // populate hostel name
-
+    const room = await Room.findById(req.params.id).populate('hostelId', 'name');
     if (!room) return res.status(404).json({ message: 'Room not found' });
-
     res.status(200).json(room);
   } catch (err) {
     console.error('Get Room Details Error:', err);
