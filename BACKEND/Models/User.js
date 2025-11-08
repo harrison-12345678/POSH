@@ -1,5 +1,11 @@
+// models/User.js
 const mongoose = require('mongoose');
+const connectDB = require('../Config/db'); // Import the function
 
+// Get connections by calling the function
+const { localConnection, atlasConnection } = connectDB();
+
+// Define schema once
 const userSchema = new mongoose.Schema({
   role: { type: String, required: true, enum: ['student', 'admin'] },
 
@@ -22,13 +28,8 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String },
   password: { type: String, required: true },
 
-  // 👇 New optional fields for profile updates
-  profilePicture: {
-    type: String,
-    default: '', // URL or path to uploaded image
-  },
+  profilePicture: { type: String, default: '' },
 
-  // For profile edits, timestamps are useful
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -39,4 +40,20 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Create models for both connections
+const LocalUser = localConnection.model('User', userSchema);
+const AtlasUser = atlasConnection.model('User', userSchema);
+
+// Optional helper to save to both databases at once
+async function saveUserToBoth(data) {
+  try {
+    const local = await LocalUser.create(data);
+    const atlas = await AtlasUser.create(data);
+    return { local, atlas };
+  } catch (error) {
+    console.error('Error saving user to both DBs:', error);
+    throw error;
+  }
+}
+
+module.exports = { LocalUser, AtlasUser, saveUserToBoth };
