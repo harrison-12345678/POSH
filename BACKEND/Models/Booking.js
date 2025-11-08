@@ -1,5 +1,11 @@
-const mongoose = require("mongoose");
+// models/Booking.js
+const mongoose = require('mongoose');
+const connectDB = require('../Config/db'); // Import the function
 
+// Get connections by calling the function
+const { localConnection, atlasConnection } = connectDB();
+
+// Define schema once
 const bookingSchema = new mongoose.Schema({
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,39 +29,45 @@ const bookingSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// ADD THESE LINES - Database constraint to prevent multiple active bookings
+// Unique index to prevent multiple active bookings
 bookingSchema.index(
-  { 
-    studentId: 1, 
-    status: 1 
-  }, 
-  { 
-    unique: true, 
-    partialFilterExpression: { 
-      status: { $in: ["pending", "approved"] } 
-    } 
-  }
+  { studentId: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: { $in: ["pending", "approved"] } } }
 );
 
-// ADD THIS METHOD - Helper to find active booking
+// Helper to find active booking
 bookingSchema.statics.findActiveBooking = function(studentId) {
   return this.findOne({
-    studentId: studentId,
+    studentId,
     status: { $in: ["pending", "approved"] }
   }).populate('hostelId').populate('roomId');
 };
 
-// ADD THIS METHOD - Check if user can book (optional helper)
+// Helper to check if user can book
 bookingSchema.statics.canUserBook = function(studentId) {
   return this.findOne({
-    studentId: studentId,
+    studentId,
     status: { $in: ["pending", "approved"] }
-  }).then(existingBooking => {
-    return {
-      canBook: !existingBooking,
-      existingBooking: existingBooking
-    };
-  });
+  }).then(existingBooking => ({
+    canBook: !existingBooking,
+    existingBooking
+  }));
 };
 
-module.exports = mongoose.model("Booking", bookingSchema);
+// Create models for both connections
+const LocalBooking = localConnection.model("Booking", bookingSchema);
+const AtlasBooking = atlasConnection.model("Booking", bookingSchema);
+
+// Optional helper to save to both databases at once
+async function saveBookingToBoth(data) {
+  try {
+    const local = await LocalBooking.create(data);
+    const atlas = await AtlasBooking.create(data);
+    return { local, atlas };
+  } catch (error) {
+    console.error('Error saving booking to both DBs:', error);
+    throw error;
+  }
+}
+
+module.exports = { LocalBooking, AtlasBooking, saveBookingToBoth };

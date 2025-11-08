@@ -1,5 +1,11 @@
+// models/Room.js
 const mongoose = require('mongoose');
+const connectDB = require('../Config/db'); // Import the function
 
+// Get connections by calling the function
+const { localConnection, atlasConnection } = connectDB();
+
+// Define schema once
 const roomSchema = new mongoose.Schema({
   hostelId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,4 +26,20 @@ const roomSchema = new mongoose.Schema({
 // Prevent duplicate room numbers in the same hostel
 roomSchema.index({ hostelId: 1, roomNumber: 1 }, { unique: true });
 
-module.exports = mongoose.model('Room', roomSchema);
+// Create models for both connections
+const LocalRoom = localConnection.model('Room', roomSchema);
+const AtlasRoom = atlasConnection.model('Room', roomSchema);
+
+// Optional helper to save to both databases at once
+async function saveRoomToBoth(data) {
+  try {
+    const local = await LocalRoom.create(data);
+    const atlas = await AtlasRoom.create(data);
+    return { local, atlas };
+  } catch (error) {
+    console.error('Error saving room to both DBs:', error);
+    throw error;
+  }
+}
+
+module.exports = { LocalRoom, AtlasRoom, saveRoomToBoth };
