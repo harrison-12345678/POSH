@@ -1,47 +1,106 @@
-const Booking = require("../Models/Booking");
-const Room = require("../Models/Room");
+// controllers/bookingController.js
+
+// ✅ Correct imports for dual DB setup
+const { LocalBooking, AtlasBooking, saveBookingToBoth } = require("../Models/Booking");
+const { LocalRoom } = require("../Models/Room"); // Use LocalRoom for room checks
 
 // Student creates booking
 exports.createBooking = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.roomId);
+    const room = await LocalRoom.findById(req.params.roomId);
     if (!room) return res.status(404).json({ message: "Room not found" });
 
-    // Check if room is available/occupied
     if (room.isOccupied) {
       return res.status(400).json({ message: "Room is already occupied" });
     }
 
-    // ✅ ADDED: Check if ANY student has already booked this room (pending or approved)
-    const existingRoomBooking = await Booking.findOne({
-      roomId: room._id,
-      status: { $in: ["pending", "approved"] } // Check for both pending AND approved
+    // Check if student has ANY active booking
+    const existingStudentBooking = await LocalBooking.findOne({
+      studentId: req.user.id,
+      status: { $in: ["pending", "approved"] },
     });
-    
-    if (existingRoomBooking) {
-      return res.status(400).json({ 
-        message: "Room is already booked by another student. Please try another room." 
+
+    if (existingStudentBooking) {
+      return res.status(400).json({
+        message: `You already have a ${existingStudentBooking.status} booking. Cancel it before booking a new room.`,
       });
     }
 
-    // Check if this specific student has already booked this room
-    const existingStudentBooking = await Booking.findOne({
-      studentId: req.user.id,
+    // Check if ANY student has already booked this room
+    const existingRoomBooking = await LocalBooking.findOne({
       roomId: room._id,
-      status: { $in: ["pending", "approved"] }
-    });
-    if (existingStudentBooking) return res.status(400).json({ message: "Already booked this room" });
-
-    const booking = await Booking.create({
-      studentId: req.user.id,
-      roomId: room._id,
-      hostelId: room.hostelId // ← ADDED: Store hostelId from the room
+      status: { $in: ["pending", "approved"] },
     });
 
-    res.status(201).json({ 
+    if (existingRoomBooking) {
+      return res.status(400).json({
+        message: "Room is already booked by another student. Please try another room.",
+      });
+    }
+
+    // Save booking to both databases
+    const { local, atlas } = await saveBookingToBoth({
+      studentId: req.user.id,
+      roomId: room._id,
+      hostelId: room.hostelId,
+    });
+
+    res.status(201).json({
       message: "Booking created successfully",
-      booking 
+      local,
+      atlas,
     });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "You already have an active booking. Please cancel it first.",
+      });
+    }
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Check booking status for frontend
+exports.getBookingStatus = async (req, res) => {
+  try {
+    const activeBooking = await LocalBooking.findOne({
+      studentId: req.user.id,
+      status: { $in: ["pending", "approved"] },
+    })
+      .populate("roomId")
+      .populate("hostelId");
+
+    res.json({
+      hasActiveBooking: !!activeBooking,
+      activeBooking,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Cancel booking
+exports.cancelBooking = async (req, res) => {
+  try {
+    const booking = await LocalBooking.findById(req.params.bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    if (booking.studentId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (booking.status === "approved") {
+      const room = await LocalRoom.findById(booking.roomId);
+      if (room) {
+        room.isOccupied = false;
+        await room.save();
+      }
+    }
+
+    await LocalBooking.findByIdAndDelete(req.params.bookingId);
+    await AtlasBooking.findByIdAndDelete(req.params.bookingId);
+
+    res.json({ message: "Booking cancelled successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -50,25 +109,25 @@ exports.createBooking = async (req, res) => {
 // Student booking history
 exports.getMyBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ studentId: req.user.id })
+    const bookings = await LocalBooking.find({ studentId: req.user.id })
       .populate("roomId")
-      .populate("hostelId", "name"); // ← ADDED: Populate hostel info
+      .populate("hostelId", "name");
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Admin: view all pending bookings FOR THEIR HOSTEL ONLY
+// Admin view all pending bookings
 exports.getPendingBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ 
+    const bookings = await LocalBooking.find({
       status: "pending",
-      hostelId: req.user.hostelId // ← CHANGED: Only show bookings for admin's hostel
+      hostelId: req.user.hostelId,
     })
-      .populate("studentId", "name email")
+      .populate("studentId", "firstName lastName email")
       .populate("roomId")
-      .populate("hostelId", "name"); // ← ADDED: Populate hostel info
+      .populate("hostelId", "name");
 
     res.json(bookings);
   } catch (err) {
@@ -76,20 +135,18 @@ exports.getPendingBookings = async (req, res) => {
   }
 };
 
-// Admin approves/rejects booking - WITH HOSTEL VERIFICATION
+// Admin approves/rejects booking
 exports.updateBookingStatus = async (req, res) => {
   try {
     const { bookingId, action } = req.params;
-    
-    // Validate action parameter
+
     if (!["approve", "reject"].includes(action)) {
       return res.status(400).json({ message: "Action must be 'approve' or 'reject'" });
     }
 
-    const booking = await Booking.findById(bookingId).populate("roomId");
+    const booking = await LocalBooking.findById(bookingId).populate("roomId");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-    // ✅ SECURITY CHECK: Verify booking belongs to admin's hostel
     if (booking.hostelId.toString() !== req.user.hostelId) {
       return res.status(403).json({ message: "Access denied - Not your hostel" });
     }
@@ -98,25 +155,38 @@ exports.updateBookingStatus = async (req, res) => {
       booking.status = "approved";
       booking.roomId.isOccupied = true;
       await booking.roomId.save();
-    } else if (action === "reject") {
+    } else {
       booking.status = "rejected";
-      // ✅ ADDED: When rejected, free up the room for other students
       booking.roomId.isOccupied = false;
       await booking.roomId.save();
     }
 
     await booking.save();
-    
-    // Get updated booking with populated data
-    const updatedBooking = await Booking.findById(bookingId)
-      .populate("studentId", "name email")
+
+    const updatedBooking = await LocalBooking.findById(bookingId)
+      .populate("studentId", "firstName lastName email")
       .populate("roomId")
       .populate("hostelId", "name");
-      
-    res.json({ 
+
+    res.json({
       message: `Booking ${action}d successfully`,
-      booking: updatedBooking 
+      booking: updatedBooking,
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Admin dashboard - all bookings
+exports.getAllBookingsForAdmin = async (req, res) => {
+  try {
+    const bookings = await LocalBooking.find({ hostelId: req.user.hostelId })
+      .populate("studentId", "firstName lastName email")
+      .populate("roomId")
+      .populate("hostelId", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(bookings);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
