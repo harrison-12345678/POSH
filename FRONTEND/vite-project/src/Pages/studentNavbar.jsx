@@ -14,7 +14,7 @@ const StudentNavbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         {/* Brand */}
-        <h1 className="navbar-brand">Student Dashboard</h1>
+        <Link to="/home" className="navbar-brand">Student Dashboard</Link>
 
         {/* Links */}
         <ul className="navbar-links">
