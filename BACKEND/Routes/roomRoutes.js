@@ -24,3 +24,8 @@ router.get('/', auth, adminAuth, getHostelRooms);
 router.get('/:id', auth, adminAuth, getRoomById);
 router.put('/:id', auth, adminAuth, updateRoom);
 router.delete('/:id', auth, adminAuth, deleteRoom);
+
+
+
+
+module.exports = router;

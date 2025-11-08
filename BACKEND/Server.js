@@ -5,10 +5,10 @@ const connectDB = require('./Config/db');
 
 // Routes
 const authRoutes = require('./Routes/authRoutes');
-const hostelRoutes = require('./routes/hostelRoutes');
+const hostelRoutes = require('./Routes/hostelRoutes');
 const roomRoutes = require('./Routes/roomRoutes');
 const roomBookings = require('./Routes/bookingRoutes');
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./Routes/userRoutes');
 
 
 
@@ -30,6 +30,15 @@ app.use((req, res, next) => {
   console.log('Body:', req.body);
   next();
 });
+console.log({
+  authRoutes: typeof authRoutes,
+  hostelRoutes: typeof hostelRoutes,
+  roomRoutes: typeof roomRoutes,
+  roomBookings: typeof roomBookings,
+  userRoutes: typeof userRoutes,
+  adminDashboard: typeof require('./Routes/adminDashboardRoutes'),
+});
+
 
 
 // Routes
