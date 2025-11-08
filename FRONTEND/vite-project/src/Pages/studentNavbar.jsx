@@ -7,7 +7,7 @@ const StudentNavbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // or your auth token
-    navigate("/login"); // programmatic navigation after logout
+    navigate("/"); // programmatic navigation after logout
   };
 
   return (
