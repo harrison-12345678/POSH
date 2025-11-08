@@ -1,134 +1,40 @@
-// controllers/roomController.js
+// controllers/hostelController.js
 
 // ✅ Correct imports for dual DB setup
-const { LocalRoom, AtlasRoom, saveRoomToBoth } = require('../Models/Room');
-const Room = LocalRoom; // Use LocalRoom for your existing controller logic (other methods)
+const { LocalHostel, AtlasHostel, saveHostelToBoth } = require('../models/Hostel');
+const Hostel = LocalHostel; // use LocalHostel so your existing getHostels works
 
-// ----------------------------
-// Create new room (saves to both Local + Atlas)
-// ----------------------------
-exports.createRoom = async (req, res) => {
+// ============================
+// Get all hostels
+// ============================
+exports.getHostels = async (req, res) => {
   try {
-    const { roomNumber, roomType, capacity, price, description, images, amenities } = req.body;
-    const hostelId = req.user.hostelId;
+    const hostels = await Hostel.find();
+    res.status(200).json(hostels);
+  } catch (err) {
+    console.error('Hostel Error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ============================
+// Create a new hostel (saves to both Local + Atlas)
+// ============================
+exports.createHostel = async (req, res) => {
+  try {
+    const { name, location, capacity } = req.body;
 
     // Save to both databases
-    const { local, atlas } = await saveRoomToBoth({
-      hostelId,
-      roomNumber,
-      roomType,
-      capacity,
-      price,
-      description,
-      images: images || [],
-      amenities: amenities || [],
-      createdBy: req.user.id
-    });
+    const { local, atlas } = await saveHostelToBoth({ name, location, capacity });
 
-    res.status(201).json({
-      message: 'Room created successfully',
-      local,
-      atlas
-    });
-
+    res.status(201).json({ message: 'Hostel created successfully', local, atlas });
   } catch (err) {
-    console.error('Create Room Error:', err);
+    console.error('Create Hostel Error:', err);
+
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Room number already exists in this hostel' });
-    }
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// ----------------------------
-// The rest of your Room controller methods remain unchanged
-// ----------------------------
-
-// Get all rooms for admin's hostel
-exports.getHostelRooms = async (req, res) => {
-  try {
-    const hostelId = req.user.hostelId;
-    const rooms = await Room.find({ hostelId });
-    res.status(200).json(rooms);
-  } catch (err) {
-    console.error('Get Rooms Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Get single room
-exports.getRoomById = async (req, res) => {
-  try {
-    const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: 'Room not found' });
-    if (room.hostelId.toString() !== req.user.hostelId) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-    res.status(200).json(room);
-  } catch (err) {
-    console.error('Get Room Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Update room
-exports.updateRoom = async (req, res) => {
-  try {
-    const { roomNumber, roomType, capacity, price, description, images, amenities, isAvailable } = req.body;
-    const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: 'Room not found' });
-    if (room.hostelId.toString() !== req.user.hostelId) {
-      return res.status(403).json({ message: 'Access denied' });
+      return res.status(400).json({ message: 'Hostel name already exists' });
     }
 
-    const updatedRoom = await Room.findByIdAndUpdate(
-      req.params.id,
-      { roomNumber, roomType, capacity, price, description, images, amenities, isAvailable },
-      { new: true, runValidators: true }
-    );
-
-    res.status(200).json({ message: 'Room updated successfully', room: updatedRoom });
-  } catch (err) {
-    console.error('Update Room Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Delete room
-exports.deleteRoom = async (req, res) => {
-  try {
-    const room = await Room.findById(req.params.id);
-    if (!room) return res.status(404).json({ message: 'Room not found' });
-    if (room.hostelId.toString() !== req.user.hostelId) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-    await Room.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Room deleted successfully' });
-  } catch (err) {
-    console.error('Delete Room Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Get all rooms (students)
-exports.getAllRooms = async (req, res) => {
-  try {
-    const rooms = await Room.find().populate('hostelId', 'name');
-    res.status(200).json(rooms);
-  } catch (err) {
-    console.error('Get All Rooms Error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Get single room details (students)
-exports.getRoomDetails = async (req, res) => {
-  try {
-    const room = await Room.findById(req.params.id).populate('hostelId', 'name');
-    if (!room) return res.status(404).json({ message: 'Room not found' });
-    res.status(200).json(room);
-  } catch (err) {
-    console.error('Get Room Details Error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
