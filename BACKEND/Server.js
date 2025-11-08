@@ -8,7 +8,7 @@ const authRoutes = require('./Routes/authRoutes');
 const hostelRoutes = require('./routes/hostelRoutes');
 const roomRoutes = require('./Routes/roomRoutes');
 const roomBookings = require('./Routes/bookingRoutes');
-const userRoutes = require('./Routes/userRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 
 
@@ -40,10 +40,3 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', roomBookings);
 app.use('/api/users', userRoutes);
 app.use("/api/admin/dashboard", require("./Routes/adminDashboardRoutes"));
-
-
-
-
-
-
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
