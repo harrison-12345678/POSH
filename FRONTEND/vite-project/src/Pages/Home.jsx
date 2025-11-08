@@ -62,9 +62,9 @@ const Home = () => {
           />
         ))}
         <div className="slide-overlay">
-          <h1 className="slide-title">Welcome Back!</h1>
+          <h1 className="slide-title">Welcome !</h1>
           <p className="slide-text">
-            Your student dashboard made simple and smart.
+            "Book your bed, start your journey.."
           </p>
         </div>
       </div>

@@ -23,10 +23,11 @@ body {
 .app {
   display: flex;
   justify-content:center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
   padding: 20px; /* Added padding for mobile */
   box-sizing: border-box; /* Ensure padding doesn't affect width */
+   justify-content: flex-start;
 }
 
 /* CENTERING FIX - Ensure container is centered */

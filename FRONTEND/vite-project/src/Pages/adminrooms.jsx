@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './adminrooms.css';
+
+const MENU_OPTIONS = [
+  { key: "dashboard", label: "Dashboard", path: "/admin/dashboard" },
+  { key: "rooms", label: "Manage Rooms", path: "/admin/rooms" },
+  { key: "bookings", label: "Pending Bookings", path: "/admin/bookings" },
+];
 
 const AdminRooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -18,9 +25,16 @@ const AdminRooms = () => {
     isAvailable: true
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchRooms();
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   // Fetch all rooms for admin's hostel
   const fetchRooms = async () => {
@@ -29,6 +43,11 @@ const AdminRooms = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
       const response = await fetch('http://localhost:5000/api/rooms', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -263,172 +282,193 @@ const AdminRooms = () => {
   ];
 
   return (
-    
-  <div className="admin-rooms">
-    <h1>Manage Rooms</h1>
-
-    {/* Button to show add-room form */}
-    {!showForm && (
-      <button onClick={() => setShowForm(true)}>Add New Room</button>
-    )}
-
-    {/* Room Form */}
-    {showForm && (
-      <form onSubmit={handleSubmit} className="room-form">
-        <div>
-          <label>Room Number:</label>
-          <input
-            type="text"
-            name="roomNumber"
-            value={formData.roomNumber}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Room Type:</label>
-          <select
-            name="roomType"
-            value={formData.roomType}
-            onChange={handleInputChange}
-          >
-            <option value="single">Single</option>
-            <option value="double">Double</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Capacity:</label>
-          <input
-            type="number"
-            name="capacity"
-            value={formData.capacity}
-            onChange={handleInputChange}
-            min={1}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Price:</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleInputChange}
-            min={0}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Description:</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <div>
-          <label>Amenities:</label>
-          <div className="amenities">
-            {amenityOptions.map((amenity) => (
-              <label key={amenity}>
-                <input
-                  type="checkbox"
-                  checked={formData.amenities.includes(amenity)}
-                  onChange={() => handleAmenityChange(amenity)}
-                />
-                {amenity}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label>Images:</label>
-          <input
-            type="file"
-            multiple
-            onChange={handleImageUpload}
-          />
-          {imageUploading && <p>Uploading...</p>}
-          <div className="image-preview">
-            {formData.images.map((img, idx) => (
-              <div key={idx} className="image-item">
-                <img src={img} alt={`Room ${idx}`} />
-                <button type="button" onClick={() => removeImage(idx)}>Remove</button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label>
-            Available:
-            <input
-              type="checkbox"
-              name="isAvailable"
-              checked={formData.isAvailable}
-              onChange={handleInputChange}
-            />
-          </label>
-        </div>
-
-        <button type="submit"
-          onClick={(e) => {
-    e.preventDefault();
-    console.log('Submit button clicked');
-    handleSubmit(e);
-  }}
-        
-        
-        
-        >
-          {editingRoom ? 'Update Room' : 'Add Room'}
+    <div className="admin-layout">
+      {/* Top Navbar */}
+      <header className="admin-navbar">
+        <h1 className="navbar-title">Hostel Management System</h1>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
         </button>
-        <button type="button" onClick={resetForm}>Cancel</button>
-      </form>
-    )}
+      </header>
 
-    {/* Loading indicator */}
-    {loading && <p>Loading rooms...</p>}
+      {/* Sidebar + Main Content */}
+      <div className="admin-body">
+        {/* Sidebar */}
+        <aside className="admin-sidebar">
+          <nav className="sidebar-nav">
+            {MENU_OPTIONS.map((item) => (
+              <Link key={item.key} to={item.path} className="sidebar-link">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
 
-    {/* List of rooms */}
-    {!loading && rooms.length > 0 && (
-      <div className="room-list">
-        {rooms.map((room) => (
-          <div key={room._id} className="room-card">
-            <h3>Room {room.roomNumber}</h3>
-            <p>Type: {room.roomType}</p>
-            <p>Capacity: {room.capacity}</p>
-            <p>Price: ${room.price}</p>
-            <p>Status: {room.isAvailable ? 'Available' : 'Occupied'}</p>
-            {room.images.length > 0 && (
-              <div className="room-images">
-                {room.images.map((img, idx) => (
-                  <img key={idx} src={img} alt={`Room ${room.roomNumber}`} />
+        {/* Main Content */}
+        <main className="admin-main">
+          <div className="admin-rooms">
+            <h1>Manage Rooms</h1>
+
+            {/* Button to show add-room form */}
+            {!showForm && (
+              <button onClick={() => setShowForm(true)}>Add New Room</button>
+            )}
+
+            {/* Room Form */}
+            {showForm && (
+              <form onSubmit={handleSubmit} className="room-form">
+                <div>
+                  <label>Room Number:</label>
+                  <input
+                    type="text"
+                    name="roomNumber"
+                    value={formData.roomNumber}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label>Room Type:</label>
+                  <select
+                    name="roomType"
+                    value={formData.roomType}
+                    onChange={handleInputChange}
+                  >
+                    <option value="single">Single</option>
+                    <option value="double">Double</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label>Capacity:</label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    value={formData.capacity}
+                    onChange={handleInputChange}
+                    min={1}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label>Price:</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    min={0}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label>Description:</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div>
+                  <label>Amenities:</label>
+                  <div className="amenities">
+                    {amenityOptions.map((amenity) => (
+                      <label key={amenity}>
+                        <input
+                          type="checkbox"
+                          checked={formData.amenities.includes(amenity)}
+                          onChange={() => handleAmenityChange(amenity)}
+                        />
+                        {amenity}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label>Images:</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleImageUpload}
+                  />
+                  {imageUploading && <p>Uploading...</p>}
+                  <div className="image-preview">
+                    {formData.images.map((img, idx) => (
+                      <div key={idx} className="image-item">
+                        <img src={img} alt={`Room ${idx}`} />
+                        <button type="button" onClick={() => removeImage(idx)}>Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label>
+                    Available:
+                    <input
+                      type="checkbox"
+                      name="isAvailable"
+                      checked={formData.isAvailable}
+                      onChange={handleInputChange}
+                    />
+                  </label>
+                </div>
+
+                <button type="submit"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Submit button clicked');
+                    handleSubmit(e);
+                  }}
+                >
+                  {editingRoom ? 'Update Room' : 'Add Room'}
+                </button>
+                <button type="button" onClick={resetForm}>Cancel</button>
+              </form>
+            )}
+
+            {/* Loading indicator */}
+            {loading && <p>Loading rooms...</p>}
+
+            {/* List of rooms */}
+            {!loading && rooms.length > 0 && (
+              <div className="room-list">
+                {rooms.map((room) => (
+                  <div key={room._id} className="room-card">
+                    <h3>Room {room.roomNumber}</h3>
+                    <p>Type: {room.roomType}</p>
+                    <p>Capacity: {room.capacity}</p>
+                    <p>Price: ${room.price}</p>
+                    <p>Status: {room.isAvailable ? 'Available' : 'Occupied'}</p>
+                    {room.images.length > 0 && (
+                      <div className="room-images">
+                        {room.images.map((img, idx) => (
+                          <img key={idx} src={img} alt={`Room ${room.roomNumber}`} />
+                        ))}
+                      </div>
+                    )}
+                    <p>Amenities: {room.amenities.join(', ')}</p>
+                    <button onClick={() => handleEdit(room)}>Edit</button>
+                    <button onClick={() => handleDelete(room._id)}>Delete</button>
+                    <button onClick={() => toggleAvailability(room._id, room.isAvailable)}>
+                      {room.isAvailable ? 'Mark Occupied' : 'Mark Available'}
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
-            <p>Amenities: {room.amenities.join(', ')}</p>
-            <button onClick={() => handleEdit(room)}>Edit</button>
-            <button onClick={() => handleDelete(room._id)}>Delete</button>
-            <button onClick={() => toggleAvailability(room._id, room.isAvailable)}>
-              {room.isAvailable ? 'Mark Occupied' : 'Mark Available'}
-            </button>
+
+            {!loading && rooms.length === 0 && <p>No rooms available.</p>}
           </div>
-        ))}
+        </main>
       </div>
-    )}
-
-    {!loading && rooms.length === 0 && <p>No rooms available.</p>}
-  </div>
-);
-
-  
+    </div>
+  );
 };
 
 export default AdminRooms;

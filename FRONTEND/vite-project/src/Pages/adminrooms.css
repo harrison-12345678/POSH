@@ -1,4 +1,29 @@
-/* adminrooms.css */
+/* adminrooms.css - ADD THESE LINES AT THE TOP */
+
+/* OVERRIDE DASHBOARD SCROLL RESTRICTIONS */
+html, body, #root {
+    overflow: auto !important;
+    height: auto !important;
+}
+
+.admin-body {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+.admin-main {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+/* Reset any inherited overflow restrictions */
+.admin-rooms-page .admin-main,
+.admin-rooms-container,
+.admin-rooms {
+    overflow: visible !important;
+    height: auto !important;
+}
 
 /* General page styling */
 .admin-rooms {
@@ -10,7 +35,8 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
   color: #333;
-  padding-top: 250px !important;
+  position: relative;
+  z-index: 1;
 }
 
 .admin-rooms h1 {
@@ -40,12 +66,12 @@ button:hover {
   background-color: #ffffff;
   border: 1px solid #ddd;
   padding: 20px;
-  margin-top: 150px; 
   margin-bottom: 20px;
   border-radius: 8px;
-  margin: 20px 0; /* added vertical spacing */
+  margin: 20px 0;
   overflow: visible; /* ensure nothing clips */
-  border: 3px solid red !important;
+  position: relative;
+  z-index: 2;
 }
 
 .room-form div {
@@ -68,6 +94,10 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
+  display: block !important;
+  position: relative !important;
+  z-index: 10 !important;
+  background: #fff !important;
 }
 
 .room-form textarea {
@@ -157,11 +187,12 @@ button:hover {
   border-radius: 5px;
   object-fit: cover;
 }
+
 .room-form input[name="roomNumber"] {
   display: block !important;
   position: relative !important;
   margin-top: 20px !important;
   z-index: 10 !important;
   background: #fff !important;
+  width: 100% !important;
 }
-
