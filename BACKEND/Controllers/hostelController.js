@@ -1,7 +1,7 @@
 // controllers/hostelController.js
 
 // ✅ Correct imports for dual DB setup
-const { LocalHostel, AtlasHostel, saveHostelToBoth } = require('../models/Hostel');
+const { LocalHostel, AtlasHostel, saveHostelToBoth } = require('../Models/Hostel');
 const Hostel = LocalHostel; // use LocalHostel so your existing getHostels works
 
 // ============================
