@@ -1,9 +1,9 @@
 // models/Booking.js
 const mongoose = require('mongoose');
-const connectDB = require('../Config/db'); // Import the function
+const connectDB = require('../Config/db');
 
-// Get connections by calling the function
-const { localConnection, atlasConnection } = connectDB();
+// Get Atlas connection only
+const { atlasConnection } = connectDB();
 
 // Define schema once
 const bookingSchema = new mongoose.Schema({
@@ -54,20 +54,7 @@ bookingSchema.statics.canUserBook = function(studentId) {
   }));
 };
 
-// Create models for both connections
-const LocalBooking = localConnection.model("Booking", bookingSchema);
-const AtlasBooking = atlasConnection.model("Booking", bookingSchema);
+// Create model for Atlas connection only
+const Booking = atlasConnection.model("Booking", bookingSchema);
 
-// Optional helper to save to both databases at once
-async function saveBookingToBoth(data) {
-  try {
-    const local = await LocalBooking.create(data);
-    const atlas = await AtlasBooking.create(data);
-    return { local, atlas };
-  } catch (error) {
-    console.error('Error saving booking to both DBs:', error);
-    throw error;
-  }
-}
-
-module.exports = { LocalBooking, AtlasBooking, saveBookingToBoth };
+module.exports = Booking;

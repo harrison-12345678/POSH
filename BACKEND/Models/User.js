@@ -1,11 +1,11 @@
 // models/User.js
 const mongoose = require('mongoose');
-const connectDB = require('../Config/db'); // Import the function
+const connectDB = require('../Config/db');
 
-// Get connections by calling the function
-const { localConnection, atlasConnection } = connectDB();
+// Get Atlas connection only
+const { atlasConnection } = connectDB();
 
-// Define schema once
+// Define schema
 const userSchema = new mongoose.Schema({
   role: { type: String, required: true, enum: ['student', 'admin'] },
 
@@ -40,20 +40,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-// Create models for both connections
-const LocalUser = localConnection.model('User', userSchema);
-const AtlasUser = atlasConnection.model('User', userSchema);
+// Create model for Atlas connection only
+const User = atlasConnection.model('User', userSchema);
 
-// Optional helper to save to both databases at once
-async function saveUserToBoth(data) {
-  try {
-    const local = await LocalUser.create(data);
-    const atlas = await AtlasUser.create(data);
-    return { local, atlas };
-  } catch (error) {
-    console.error('Error saving user to both DBs:', error);
-    throw error;
-  }
-}
-
-module.exports = { LocalUser, AtlasUser, saveUserToBoth };
+module.exports = User;

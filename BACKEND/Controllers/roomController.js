@@ -1,19 +1,17 @@
 // controllers/roomController.js
 
-// ✅ Correct imports for dual DB setup
-const { LocalRoom, AtlasRoom, saveRoomToBoth } = require('../Models/Room');
-const Room = LocalRoom; // Use LocalRoom for your existing controller logic (other methods)
+const { AtlasRoom } = require('../Models/Room');
+const Room = AtlasRoom;
 
 // ----------------------------
-// Create new room (saves to both Local + Atlas)
+// Create new room
 // ----------------------------
 exports.createRoom = async (req, res) => {
   try {
     const { roomNumber, roomType, capacity, price, description, images, amenities } = req.body;
     const hostelId = req.user.hostelId;
 
-    // Save to both databases
-    const { local, atlas } = await saveRoomToBoth({
+    const newRoom = new Room({
       hostelId,
       roomNumber,
       roomType,
@@ -25,10 +23,11 @@ exports.createRoom = async (req, res) => {
       createdBy: req.user.id
     });
 
+    const savedRoom = await newRoom.save();
+
     res.status(201).json({
       message: 'Room created successfully',
-      local,
-      atlas
+      room: savedRoom
     });
 
   } catch (err) {
@@ -41,10 +40,8 @@ exports.createRoom = async (req, res) => {
 };
 
 // ----------------------------
-// The rest of your Room controller methods remain unchanged
-// ----------------------------
-
 // Get all rooms for admin's hostel
+// ----------------------------
 exports.getHostelRooms = async (req, res) => {
   try {
     const hostelId = req.user.hostelId;
@@ -56,7 +53,9 @@ exports.getHostelRooms = async (req, res) => {
   }
 };
 
-// Get single room
+// ----------------------------
+// Get single room by ID
+// ----------------------------
 exports.getRoomById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
@@ -71,7 +70,9 @@ exports.getRoomById = async (req, res) => {
   }
 };
 
+// ----------------------------
 // Update room
+// ----------------------------
 exports.updateRoom = async (req, res) => {
   try {
     const { roomNumber, roomType, capacity, price, description, images, amenities, isAvailable } = req.body;
@@ -94,7 +95,9 @@ exports.updateRoom = async (req, res) => {
   }
 };
 
+// ----------------------------
 // Delete room
+// ----------------------------
 exports.deleteRoom = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
@@ -110,7 +113,9 @@ exports.deleteRoom = async (req, res) => {
   }
 };
 
+// ----------------------------
 // Get all rooms (students)
+// ----------------------------
 exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.find().populate('hostelId', 'name');
@@ -121,7 +126,9 @@ exports.getAllRooms = async (req, res) => {
   }
 };
 
+// ----------------------------
 // Get single room details (students)
+// ----------------------------
 exports.getRoomDetails = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id).populate('hostelId', 'name');

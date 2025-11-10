@@ -1,13 +1,12 @@
 // controllers/bookingController.js
 
-// ✅ Correct imports for dual DB setup
-const { LocalBooking, AtlasBooking, saveBookingToBoth } = require("../Models/Booking");
-const { LocalRoom } = require("../Models/Room"); // Use LocalRoom for room checks
+const { AtlasBooking } = require("../Models/Booking");
+const { AtlasRoom } = require("../Models/Room");
 
 // Student creates booking
 exports.createBooking = async (req, res) => {
   try {
-    const room = await LocalRoom.findById(req.params.roomId);
+    const room = await AtlasRoom.findById(req.params.roomId);
     if (!room) return res.status(404).json({ message: "Room not found" });
 
     if (room.isOccupied) {
@@ -15,7 +14,7 @@ exports.createBooking = async (req, res) => {
     }
 
     // Check if student has ANY active booking
-    const existingStudentBooking = await LocalBooking.findOne({
+    const existingStudentBooking = await AtlasBooking.findOne({
       studentId: req.user.id,
       status: { $in: ["pending", "approved"] },
     });
@@ -27,7 +26,7 @@ exports.createBooking = async (req, res) => {
     }
 
     // Check if ANY student has already booked this room
-    const existingRoomBooking = await LocalBooking.findOne({
+    const existingRoomBooking = await AtlasBooking.findOne({
       roomId: room._id,
       status: { $in: ["pending", "approved"] },
     });
@@ -38,8 +37,8 @@ exports.createBooking = async (req, res) => {
       });
     }
 
-    // Save booking to both databases
-    const { local, atlas } = await saveBookingToBoth({
+    // Save to Atlas DB
+    const booking = await AtlasBooking.create({
       studentId: req.user.id,
       roomId: room._id,
       hostelId: room.hostelId,
@@ -47,8 +46,7 @@ exports.createBooking = async (req, res) => {
 
     res.status(201).json({
       message: "Booking created successfully",
-      local,
-      atlas,
+      booking,
     });
   } catch (err) {
     if (err.code === 11000) {
@@ -63,7 +61,7 @@ exports.createBooking = async (req, res) => {
 // Check booking status for frontend
 exports.getBookingStatus = async (req, res) => {
   try {
-    const activeBooking = await LocalBooking.findOne({
+    const activeBooking = await AtlasBooking.findOne({
       studentId: req.user.id,
       status: { $in: ["pending", "approved"] },
     })
@@ -82,7 +80,7 @@ exports.getBookingStatus = async (req, res) => {
 // Cancel booking
 exports.cancelBooking = async (req, res) => {
   try {
-    const booking = await LocalBooking.findById(req.params.bookingId);
+    const booking = await AtlasBooking.findById(req.params.bookingId);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     if (booking.studentId.toString() !== req.user.id) {
@@ -90,14 +88,13 @@ exports.cancelBooking = async (req, res) => {
     }
 
     if (booking.status === "approved") {
-      const room = await LocalRoom.findById(booking.roomId);
+      const room = await AtlasRoom.findById(booking.roomId);
       if (room) {
         room.isOccupied = false;
         await room.save();
       }
     }
 
-    await LocalBooking.findByIdAndDelete(req.params.bookingId);
     await AtlasBooking.findByIdAndDelete(req.params.bookingId);
 
     res.json({ message: "Booking cancelled successfully" });
@@ -109,7 +106,7 @@ exports.cancelBooking = async (req, res) => {
 // Student booking history
 exports.getMyBookings = async (req, res) => {
   try {
-    const bookings = await LocalBooking.find({ studentId: req.user.id })
+    const bookings = await AtlasBooking.find({ studentId: req.user.id })
       .populate("roomId")
       .populate("hostelId", "name");
     res.json(bookings);
@@ -121,7 +118,7 @@ exports.getMyBookings = async (req, res) => {
 // Admin view all pending bookings
 exports.getPendingBookings = async (req, res) => {
   try {
-    const bookings = await LocalBooking.find({
+    const bookings = await AtlasBooking.find({
       status: "pending",
       hostelId: req.user.hostelId,
     })
@@ -144,7 +141,7 @@ exports.updateBookingStatus = async (req, res) => {
       return res.status(400).json({ message: "Action must be 'approve' or 'reject'" });
     }
 
-    const booking = await LocalBooking.findById(bookingId).populate("roomId");
+    const booking = await AtlasBooking.findById(bookingId).populate("roomId");
     if (!booking) return res.status(404).json({ message: "Booking not found" });
 
     if (booking.hostelId.toString() !== req.user.hostelId) {
@@ -163,7 +160,7 @@ exports.updateBookingStatus = async (req, res) => {
 
     await booking.save();
 
-    const updatedBooking = await LocalBooking.findById(bookingId)
+    const updatedBooking = await AtlasBooking.findById(bookingId)
       .populate("studentId", "firstName lastName email")
       .populate("roomId")
       .populate("hostelId", "name");
@@ -180,7 +177,7 @@ exports.updateBookingStatus = async (req, res) => {
 // Admin dashboard - all bookings
 exports.getAllBookingsForAdmin = async (req, res) => {
   try {
-    const bookings = await LocalBooking.find({ hostelId: req.user.hostelId })
+    const bookings = await AtlasBooking.find({ hostelId: req.user.hostelId })
       .populate("studentId", "firstName lastName email")
       .populate("roomId")
       .populate("hostelId", "name")

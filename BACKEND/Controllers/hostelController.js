@@ -1,15 +1,14 @@
 // controllers/hostelController.js
 
-// ✅ Correct imports for dual DB setup
-const { LocalHostel, AtlasHostel, saveHostelToBoth } = require('../Models/Hostel');
-const Hostel = LocalHostel; // use LocalHostel so your existing getHostels works
+const { AtlasHostel } = require('../Models/Hostel');
+const Hostel = AtlasHostel; // 👈 All operations now only use Atlas
 
 // ============================
-// Get all hostels
+// Get all hostels (Atlas only)
 // ============================
 exports.getHostels = async (req, res) => {
   try {
-    const hostels = await Hostel.find();
+    const hostels = await Hostel.find(); // Atlas only
     res.status(200).json(hostels);
   } catch (err) {
     console.error('Hostel Error:', err);
@@ -18,16 +17,16 @@ exports.getHostels = async (req, res) => {
 };
 
 // ============================
-// Create a new hostel (saves to both Local + Atlas)
+// Create a new hostel (Atlas only)
 // ============================
 exports.createHostel = async (req, res) => {
   try {
     const { name, location, capacity } = req.body;
 
-    // Save to both databases
-    const { local, atlas } = await saveHostelToBoth({ name, location, capacity });
+    const newHostel = new Hostel({ name, location, capacity });
+    const savedHostel = await newHostel.save();
 
-    res.status(201).json({ message: 'Hostel created successfully', local, atlas });
+    res.status(201).json({ message: 'Hostel created successfully', hostel: savedHostel });
   } catch (err) {
     console.error('Create Hostel Error:', err);
 

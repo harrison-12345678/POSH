@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { LocalUser, AtlasUser, saveUserToBoth } = require('../models/User'); // dual DB
+const { AtlasUser } = require('../models/User'); // Only Atlas
 
 // Signup
 exports.signup = async (req, res) => {
@@ -14,14 +14,14 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'Hostel ID is required for admins' });
     }
 
-    // Check if user exists in Local DB (you could also check Atlas if needed)
-    const existingUser = await LocalUser.findOne({ email });
+    // Check if user exists in Atlas DB
+    const existingUser = await AtlasUser.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists with this email' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save to both databases
-    const { local, atlas } = await saveUserToBoth({
+    // Save to Atlas DB
+    const user = await AtlasUser.create({
       role,
       firstName,
       lastName,
@@ -35,8 +35,7 @@ exports.signup = async (req, res) => {
 
     res.status(201).json({
       message: 'User created successfully',
-      local,
-      atlas
+      user
     });
 
   } catch (err) {
@@ -50,21 +49,32 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check Local DB (you could also check Atlas)
-    const user = await LocalUser.findOne({ email });
+    // Check Atlas DB
+    const user = await AtlasUser.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
 
-    const payload = { id: user._id, role: user.role, hostelId: user.role === 'admin' ? user.hostelId : null };
+    const payload = { 
+      id: user._id, 
+      role: user.role, 
+      hostelId: user.role === 'admin' ? user.hostelId : null 
+    };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { 
+      expiresIn: process.env.JWT_EXPIRES_IN || '1h' 
+    });
 
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: { id: user._id, role: user.role, email: user.email, hostelId: user.hostelId || null }
+      user: { 
+        id: user._id, 
+        role: user.role, 
+        email: user.email, 
+        hostelId: user.hostelId || null 
+      }
     });
 
   } catch (err) {

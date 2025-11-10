@@ -1,8 +1,7 @@
 // controllers/userController.js
 
-// ✅ Correct imports for dual DB setup
-const { LocalUser, AtlasUser, saveUserToBoth } = require('../models/User');
-const User = LocalUser; // Use LocalUser for existing queries; AtlasUser could also be used
+const { AtlasUser } = require('../models/User');
+const User = AtlasUser;
 const bcrypt = require('bcryptjs');
 
 // ============================
@@ -111,15 +110,15 @@ exports.updateProfile = async (req, res) => {
 };
 
 // ============================
-// Signup / Registration Example
+// Signup / Registration
 // ============================
 
 exports.signupUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password, role } = req.body;
 
-    // Check if user exists in Local DB
-    const existingUser = await LocalUser.findOne({ email });
+    // Check if user exists in Atlas DB
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -128,8 +127,8 @@ exports.signupUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save to both databases
-    const { local, atlas } = await saveUserToBoth({
+    // Save to Atlas only
+    const newUser = new User({
       firstName,
       lastName,
       email,
@@ -137,7 +136,9 @@ exports.signupUser = async (req, res) => {
       role
     });
 
-    res.status(201).json({ message: 'User created successfully', local, atlas });
+    const savedUser = await newUser.save();
+
+    res.status(201).json({ message: 'User created successfully', user: savedUser });
   } catch (err) {
     console.error('Signup Error:', err);
     res.status(500).json({ message: 'Signup failed', error: err.message });
