@@ -32,7 +32,7 @@ const Home = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch("http://localhost:5000/api/bookings/status", {
+      const response = await fetch("https://hostel-booking-system-7970.onrender.com/api/bookings/status", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
