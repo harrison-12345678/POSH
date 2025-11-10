@@ -25,14 +25,14 @@ const AdminDashboard = () => {
         }
 
         // Fetch all bookings for this admin's hostel
-        const bookingsRes = await axios.get("http://localhost:5000/api/bookings/admin/all", {
+        const bookingsRes = await axios.get("https://hostel-booking-system-7970.onrender.com/api/bookings/admin/all", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
         const allBookings = bookingsRes.data;
 
         // Fetch all rooms for this admin's hostel
-        const roomsRes = await axios.get("http://localhost:5000/api/rooms", {
+        const roomsRes = await axios.get("https://hostel-booking-system-7970.onrender.com/api/rooms", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
