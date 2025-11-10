@@ -22,18 +22,18 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const res = await axios.post('https://hostel-booking-system-7970.onrender.com/api/auth/login', formData);
 
-         // ✅ Log the entire response from backend
-    console.log('Login response:', res.data);
+      // ✅ Log the entire response from backend
+      console.log('Login response:', res.data);
 
       alert(res.data.message);
 
-        // ✅ Store JWT token in localStorage
-    localStorage.setItem('token', res.data.token);
+      // ✅ Store JWT token in localStorage
+      localStorage.setItem('token', res.data.token);
 
-    // ✅ Store user info if needed
-    localStorage.setItem('user', JSON.stringify(res.data.user));
+      // ✅ Store user info if needed
+      localStorage.setItem('user', JSON.stringify(res.data.user));
 
       // Redirect based on role
       if (res.data.user.role === 'student') {
