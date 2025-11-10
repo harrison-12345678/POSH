@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { AtlasUser } = require('../models/User'); // Only Atlas
+const { AtlasUser } = require('../Models/User'); // Only Atlas
 
 // Signup
 exports.signup = async (req, res) => {
