@@ -27,7 +27,7 @@ function connectDB() {
     });
   }
 
-  return { atlasConnection };
+  return  atlasConnection ;
 }
 
 module.exports = connectDB;

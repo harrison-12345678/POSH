@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const connectDB = require('../Config/db');
 
 // Get Atlas connection only
-const { atlasConnection } = connectDB();
+const  atlasConnection  = connectDB();
 
 // Define schema once
 const bookingSchema = new mongoose.Schema({
