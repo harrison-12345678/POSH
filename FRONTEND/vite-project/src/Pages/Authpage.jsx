@@ -21,12 +21,10 @@ function AuthPage() {
   const [hostels, setHostels] = useState([]);
 
   useEffect(() => {
-  axios.get('http://localhost:5000/api/hostels')
-       .then(res => setHostels(res.data))
-       .catch(err => console.error(err));
-}, []);
-
-  
+    axios.get('https://hostel-booking-system-7970.onrender.com/api/hostels')
+         .then(res => setHostels(res.data))
+         .catch(err => console.error(err));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +43,7 @@ function AuthPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
+      const res = await axios.post('https://hostel-booking-system-7970.onrender.com/api/auth/signup', formData);
       alert(res.data.message);
 
       // Redirect to login page after successful signup
