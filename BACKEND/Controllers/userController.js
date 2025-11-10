@@ -1,6 +1,6 @@
 // controllers/userController.js
 
-const { AtlasUser } = require('../models/User');
+const { AtlasUser } = require('../Models/User');
 const User = AtlasUser;
 const bcrypt = require('bcryptjs');
 
