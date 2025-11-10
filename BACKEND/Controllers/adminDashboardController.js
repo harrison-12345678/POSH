@@ -1,6 +1,6 @@
 const { AtlasBooking } = require("../Models/Booking");
 const { AtlasRoom } = require("../Models/Room");
-const { AtlasUser } = require("../models/User");
+const { AtlasUser } = require("../Models/User");
 
 // Admin dashboard data
 exports.getAdminDashboardData = async (req, res) => {
