@@ -24,7 +24,7 @@ const AdminBookings = () => {
         return;
       }
 
-      const res = await axios.get("http://localhost:5000/api/bookings/admin/pending", {
+      const res = await axios.get("https://hostel-booking-system-7970.onrender.com/api/bookings/admin/pending", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBookings(res.data);
@@ -45,7 +45,7 @@ const AdminBookings = () => {
       setActionLoading(bookingId + action);
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/bookings/admin/${bookingId}/${action}`,
+        `https://hostel-booking-system-7970.onrender.com/api/bookings/admin/${bookingId}/${action}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
