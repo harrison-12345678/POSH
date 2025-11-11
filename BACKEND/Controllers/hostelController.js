@@ -1,7 +1,6 @@
 // controllers/hostelController.js
 
-const { AtlasHostel } = require('../Models/Hostel');
-const Hostel = AtlasHostel; // 👈 All operations now only use Atlas
+const Hostel = require('../Models/Hostel'); // Fixed import - no destructuring needed
 
 // ============================
 // Get all hostels (Atlas only)
