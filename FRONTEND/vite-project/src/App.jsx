@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Import pages from assets
-import AuthPage from './Pages/AuthPage';
-import LoginPage from './Pages/LoginPage';
-import Home from './Pages/Home';
-import AdminDashboard from './Pages/admin-dashboard';
-import AdminRooms from './Pages/adminrooms';
-import AdminBookings from './Pages/adminbookings';
-import RoomsPage from './Pages/studentrooms';
-import BookingHistoryPage from './Pages/studentbookings';
-import ProfilePage from './Pages/studentprofile';
+import AuthPage from './Pages/Authpage.jsx';
+import LoginPage from './Pages/LoginPage.jsx';
+import Home from './Pages/Home.jsx';
+import AdminDashboard from './Pages/admin-dashboard.jsx';
+import AdminRooms from './Pages/adminrooms.jsx';
+import AdminBookings from './Pages/adminbookings.jsx';
+import RoomsPage from './Pages/studentrooms.jsx';
+import BookingHistoryPage from './Pages/studentbookings.jsx';
+import ProfilePage from './Pages/studentprofile.jsx';
 
 function App() {
   return (
