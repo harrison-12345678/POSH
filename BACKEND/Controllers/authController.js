@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../Models/User'); // Only Atlas
+const User = require('../Models/User'); // Fixed import
 
 // Signup
 exports.signup = async (req, res) => {
@@ -14,14 +14,14 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'Hostel ID is required for admins' });
     }
 
-    // Check if user exists in Atlas DB
-    const existingUser = await AtlasUser.findOne({ email });
+    // Check if user exists
+    const existingUser = await User.findOne({ email }); // Changed from AtlasUser to User
     if (existingUser) return res.status(400).json({ message: 'User already exists with this email' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save to Atlas DB
-    const user = await AtlasUser.create({
+    // Save to DB
+    const user = await User.create({ // Changed from AtlasUser to User
       role,
       firstName,
       lastName,
@@ -49,8 +49,8 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check Atlas DB
-    const user = await AtlasUser.findOne({ email });
+    // Check DB
+    const user = await User.findOne({ email }); // Changed from AtlasUser to User
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
     const isMatch = await bcrypt.compare(password, user.password);
