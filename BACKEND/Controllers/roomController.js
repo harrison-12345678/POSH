@@ -1,7 +1,6 @@
 // controllers/roomController.js
 
-const { AtlasRoom } = require('../Models/Room');
-const Room = AtlasRoom;
+const Room = require('../Models/Room'); // Fixed import - no destructuring needed
 
 // ----------------------------
 // Create new room
