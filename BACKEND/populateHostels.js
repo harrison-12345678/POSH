@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
-const Hostel = require('./models/Hostel'); // Adjust path as needed
+const Hostel = require('./Models/Hostel'); // Adjust path as needed
 
 // Connect to your PRODUCTION MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI_ATLAS) // ← FIXED THIS LINE
