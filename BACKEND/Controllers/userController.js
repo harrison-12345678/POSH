@@ -1,7 +1,6 @@
 // controllers/userController.js
 
-const { AtlasUser } = require('../Models/User');
-const User = AtlasUser;
+const User = require('../Models/User'); // Fixed import - no destructuring needed
 const bcrypt = require('bcryptjs');
 
 // ============================
