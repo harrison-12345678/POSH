@@ -51,6 +51,7 @@ function LoginPage() {
     <div className="app">
       <div className="container">
         <header>
+          <h1>HOSTEL BOOKING SYSTEM</h1>
           <h1>Login</h1>
           <p>Enter your email and password to access your account.</p>
         </header>
